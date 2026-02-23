@@ -1,0 +1,20 @@
+{
+  "name": "presentation-chef",
+  "description": "Apple Keynote-style HTML presentation generator for Claude Code",
+  "owner": {
+    "name": "sacredvoid",
+    "email": "sacredvoid@users.noreply.github.com"
+  },
+  "plugins": [
+    {
+      "name": "presentation-chef",
+      "description": "Convert any content into stunning Apple Keynote-style HTML presentations with cinematic animations, glassmorphism, and premium design.",
+      "version": "1.0.0",
+      "source": "./",
+      "author": {
+        "name": "sacredvoid",
+        "email": "sacredvoid@users.noreply.github.com"
+      }
+    }
+  ]
+}

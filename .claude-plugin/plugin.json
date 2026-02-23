@@ -1,0 +1,13 @@
+{
+  "name": "presentation-chef",
+  "description": "Convert any content into stunning Apple Keynote-style HTML presentations. Cinematic animations, glassmorphism, ambient effects, and premium design — all in a single self-contained .html file.",
+  "version": "1.0.0",
+  "author": {
+    "name": "sacredvoid",
+    "email": "sacredvoid@users.noreply.github.com"
+  },
+  "homepage": "https://github.com/sacredvoid/presentation-chef",
+  "repository": "https://github.com/sacredvoid/presentation-chef",
+  "license": "MIT",
+  "keywords": ["presentation", "keynote", "html", "slides", "design", "apple", "chronicle", "glassmorphism", "animations"]
+}
