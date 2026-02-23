@@ -219,6 +219,8 @@ When generating the HTML presentation, follow these specifications exactly.
   <!-- Progress Bar -->
   <!-- Navigation Dots -->
   <!-- Keyboard Hint -->
+  <!-- Speaker Notes Sidebar -->
+  <!-- Controls Bar (Notes T, PDF P) -->
   <!-- Slide Container -->
   <script>/* ALL JS INLINE */</script>
 </body>
@@ -863,11 +865,13 @@ The JS engine handles:
 3. **Count-up animations** — `requestAnimationFrame` with ease-out cubic
 4. **Data bar animations** — trigger fill width on reveal
 5. **Dot/progress updates** — sync with current slide
-6. **Keyboard navigation** — arrows, space, page up/down, home/end, escape
+6. **Keyboard navigation** — arrows, space, page up/down, home/end, escape, T (notes), P (pdf)
 7. **Mouse wheel** — debounced with accumulator (threshold 50, debounce 80ms)
 8. **Touch** — swipe detection with 50px threshold
 9. **Parallax** — mousemove on hero glow and ambient orbs
 10. **Loading screen** — fade out after 600ms on window load
+11. **Speaker notes toggle** — `toggleNotes()` opens/closes sidebar, `updateNotes()` syncs content to current slide
+12. **PDF export** — `exportPdf()` snaps all count-up numbers to `data-target` values and data bars to full width before calling `window.print()`, ensuring animated values render correctly in the PDF
 
 Key constants:
 ```js
@@ -885,6 +889,96 @@ Use an IIFE wrapper. No external dependencies. All event listeners with proper p
 - **768px**: Single columns, reduced gaps, hidden dot labels, smaller padding
 - **480px**: Further simplified grids, hidden keyboard hints
 - **Touch devices**: Disable hover transforms via `@media (hover: none)`
+
+### Speaker Notes Sidebar (Press T)
+
+Every presentation MUST include a speaker notes sidebar. The sidebar:
+- Slides in from the left when pressing `T` key or clicking the Notes button
+- Frosted glass panel (`rgba(10,10,20,0.92)` bg, `backdrop-filter: blur(30px)`, 340px wide)
+- Has a sticky header with "Talking Points" title, close button, and "Slide X of N" label
+- Contains a `<div class="note-content" data-note="N">` for each slide with talking points
+- Only the `.note-content.active` matching current slide is shown (display block/none)
+- When open, the main slide container shifts right and scales down: `transform: translateX(170px) scale(0.88)`
+- Progress bar left offset adjusts: `left: 340px`
+- Toggle via `body.notes-open` class
+
+**Talking points content**: Write 2-3 paragraphs per slide with:
+- **Bold opener** — what to emphasize on this slide
+- Key talking points in natural speaking language (not bullet points)
+- A `.note-tip` callout for delivery tips (when to pause, make eye contact, etc.)
+
+**Important**: Call `updateNotes()` inside `goToSlide()` when `notesOpen` is true.
+
+### Controls Bar
+
+Fixed bottom-right, two buttons:
+
+```html
+<div class="controls-bar">
+  <button class="control-btn" id="btnNotes">
+    <svg><!-- document icon --></svg> Notes <span class="key-badge">T</span>
+  </button>
+  <button class="control-btn" id="btnPdf">
+    <svg><!-- download icon --></svg> PDF <span class="key-badge">P</span>
+  </button>
+</div>
+```
+
+Buttons: `border-radius: 10px`, frosted glass bg, 12px font. Key badge: 20x20 rounded square.
+
+Hide controls bar on mobile (`@media (max-width: 480px) { .controls-bar { display: none; } }`).
+
+### PDF / Print Export (Press P)
+
+Every presentation MUST include PDF export via `window.print()` with a print stylesheet.
+
+**Critical: Count-up number fix.** Before printing, the `exportPdf()` function MUST:
+1. Snap ALL `.count-up` elements to their `data-target` values (set `textContent = getAttribute('data-target')`)
+2. Add `.revealed` class to ALL `.data-bar-fill` elements so bars show at full width
+3. Close speaker notes if open
+4. Call `window.print()` after a 100ms delay to let CSS settle
+
+```js
+function exportPdf() {
+  document.querySelectorAll('.count-up').forEach(function(el) {
+    el.textContent = el.getAttribute('data-target');
+  });
+  document.querySelectorAll('.data-bar-fill').forEach(function(el) {
+    el.classList.add('revealed');
+  });
+  var wasNotesOpen = notesOpen;
+  if (notesOpen) toggleNotes();
+  setTimeout(function() {
+    window.print();
+    if (wasNotesOpen) setTimeout(toggleNotes, 300);
+  }, 100);
+}
+```
+
+**Print stylesheet** (`@media print`):
+
+```css
+@media print {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html, body { overflow: visible !important; height: auto !important; width: auto !important; }
+  .loading-screen, .grain-overlay, .progress-bar, .nav-dots,
+  .keyboard-hint, .controls-bar, .speaker-notes,
+  .ambient-orb, .hero-glow { display: none !important; }
+  .slide-container { position: static !important; transform: none !important; }
+  .slide {
+    position: relative !important;
+    opacity: 1 !important; visibility: visible !important; transform: none !important;
+    width: 100% !important; height: 100vh !important;
+    page-break-after: always; break-after: page;
+    page-break-inside: avoid; break-inside: avoid;
+    overflow: hidden !important;
+  }
+  .slide:last-child { page-break-after: auto; }
+  .reveal-element { opacity: 1 !important; transform: none !important; }
+  .data-bar-fill { width: var(--bar-width) !important; }
+}
+@page { size: landscape; margin: 0; }
+```
 
 ### Typography Scale
 
@@ -918,6 +1012,14 @@ Before outputting the final HTML, verify:
 - [ ] `will-change` hints on slide elements
 - [ ] Grain overlay included (dark themes) or omitted (light themes)
 - [ ] Ambient orbs have varied positions, sizes, and animation delays
+- [ ] Speaker notes sidebar included with talking points for EVERY slide
+- [ ] Each `.note-content[data-note="N"]` matches a slide (0-indexed)
+- [ ] Controls bar with Notes (T) and PDF (P) buttons is included
+- [ ] `exportPdf()` snaps count-up values to targets before `window.print()`
+- [ ] `@media print` stylesheet hides UI chrome and shows all slides as pages
+- [ ] `@page { size: landscape; margin: 0; }` is set
+- [ ] `updateNotes()` is called in `goToSlide()` when notes are open
+- [ ] T key toggles notes, P key triggers PDF export, Escape closes notes
 
 ### Common SVG Icons for Contact Links
 
