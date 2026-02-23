@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" fill="none">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6e3aff"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ff6723"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ff6723"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Icon: stylized presentation slide with sparkle -->
+  <g transform="translate(20, 30)">
+    <!-- Slide frame -->
+    <rect x="10" y="10" width="120" height="85" rx="12" ry="12" fill="none" stroke="url(#g1)" stroke-width="4"/>
+    <!-- Screen content lines -->
+    <rect x="28" y="32" width="50" height="4" rx="2" fill="#a855f7" opacity="0.7"/>
+    <rect x="28" y="44" width="70" height="3" rx="1.5" fill="#6e3aff" opacity="0.4"/>
+    <rect x="28" y="54" width="60" height="3" rx="1.5" fill="#6e3aff" opacity="0.3"/>
+    <rect x="28" y="64" width="40" height="3" rx="1.5" fill="#6e3aff" opacity="0.2"/>
+    <!-- Stand -->
+    <line x1="70" y1="95" x2="70" y2="115" stroke="url(#g1)" stroke-width="3" stroke-linecap="round"/>
+    <line x1="45" y1="115" x2="95" y2="115" stroke="url(#g1)" stroke-width="3" stroke-linecap="round"/>
+    <!-- Chef hat sparkle -->
+    <g transform="translate(105, 5)" filter="url(#glow)">
+      <path d="M0 12 L3 0 L6 12 L18 15 L6 18 L3 30 L0 18 L-12 15 Z" fill="url(#g2)" opacity="0.9"/>
+    </g>
+    <!-- Small sparkle -->
+    <g transform="translate(15, 75)" filter="url(#glow)">
+      <path d="M0 5 L1.5 0 L3 5 L8 6.5 L3 8 L1.5 13 L0 8 L-5 6.5 Z" fill="#ff6723" opacity="0.6"/>
+    </g>
+  </g>
+  <!-- Text -->
+  <text x="170" y="92" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif" font-size="64" font-weight="700" letter-spacing="-2" fill="white">
+    Presentation
+  </text>
+  <text x="648" y="92" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif" font-size="64" font-weight="700" letter-spacing="-2" fill="url(#g2)">
+    Chef
+  </text>
+  <!-- Tagline -->
+  <text x="172" y="128" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif" font-size="18" font-weight="400" letter-spacing="0.5" fill="#86868b">
+    Cinematic HTML presentations from any AI coding tool
+  </text>
+</svg>
