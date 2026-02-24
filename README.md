@@ -7,12 +7,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/sacredvoid/presentation-chef/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="MIT License"></a>
-  <a href="https://github.com/sacredvoid/presentation-chef"><img src="https://img.shields.io/badge/platform-10%2B%20AI%20tools-blueviolet?style=flat-square" alt="10+ Platforms"></a>
-  <a href="https://github.com/sacredvoid/presentation-chef"><img src="https://img.shields.io/badge/output-single%20.html-ff6723?style=flat-square" alt="Single HTML File"></a>
-  <a href="https://github.com/sacredvoid/presentation-chef"><img src="https://img.shields.io/badge/dependencies-zero-30d158?style=flat-square" alt="Zero Dependencies"></a>
-  <a href="https://github.com/sacredvoid/presentation-chef"><img src="https://img.shields.io/badge/themes-5%20presets-a855f7?style=flat-square" alt="5 Themes"></a>
-  <a href="https://github.com/sacredvoid/presentation-chef"><img src="https://img.shields.io/badge/slides-13%20types-0071e3?style=flat-square" alt="13 Slide Types"></a>
+  <a href="https://github.com/sacredvoid/presentation-chef/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-1d1d1f?style=flat-square&labelColor=e8734a" alt="MIT License"></a>
+  <a href="#installation"><img src="https://img.shields.io/badge/works_with-10%2B_AI_tools-1d1d1f?style=flat-square&labelColor=d4553a" alt="10+ Platforms"></a>
+  <a href="#features"><img src="https://img.shields.io/badge/output-single_.html-1d1d1f?style=flat-square&labelColor=c4956a" alt="Single HTML File"></a>
+  <a href="#features"><img src="https://img.shields.io/badge/dependencies-zero-1d1d1f?style=flat-square&labelColor=86868b" alt="Zero Dependencies"></a>
 </p>
 
 <p align="center">
