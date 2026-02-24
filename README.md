@@ -1,5 +1,8 @@
 # Presentation Chef
 
+[![MIT License](https://img.shields.io/github/license/sacredvoid/presentation-chef)](LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/sacredvoid/presentation-chef)](https://github.com/sacredvoid/presentation-chef/releases)
+
 Convert any content into Apple Keynote-style HTML presentations — from any AI coding tool.
 
 Cinematic animations, glassmorphism, ambient effects, speaker notes, PDF export — all in a **single self-contained `.html` file** with zero dependencies. Inspired by [ChronicleHQ](https://chroniclehq.com).
