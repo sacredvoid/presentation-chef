@@ -42,9 +42,11 @@ Presentation Chef is a markdown-based skill/rule that works with any AI coding a
 <details open>
 <summary><strong>Claude Code</strong></summary>
 
-```bash
-# Install from GitHub
-/install-skill sacredvoid/presentation-chef
+Add the marketplace and install the plugin:
+
+```
+/plugin marketplace add sacredvoid/presentation-chef
+/plugin install presentation-chef@sacredvoid-presentation-chef
 ```
 
 Or manually copy `skills/presentation-chef/SKILL.md` to `~/.claude/skills/presentation-chef/SKILL.md`.
