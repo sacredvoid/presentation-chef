@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" fill="none">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+      text { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    </style>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#000" flood-opacity="0.06"/>
+    </filter>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0071e3"/>
+      <stop offset="100%" stop-color="#6e3aff"/>
+    </linearGradient>
+    <linearGradient id="line-grad" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#0071e3"/>
+      <stop offset="100%" stop-color="#6e3aff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="680" rx="16" fill="#fafafa"/>
+
+  <!-- Title -->
+  <text x="450" y="44" text-anchor="middle" font-size="13" font-weight="600" letter-spacing="0.12em" fill="#0071e3">HOW IT WORKS</text>
+  <text x="450" y="74" text-anchor="middle" font-size="24" font-weight="700" fill="#1d1d1f">Interactive Workflow</text>
+  <text x="450" y="96" text-anchor="middle" font-size="14" fill="#86868b">Presentation Chef guides you through 5 steps before generating anything</text>
+
+  <!-- Connecting line -->
+  <line x1="450" y1="125" x2="450" y2="650" stroke="url(#line-grad)" stroke-width="2" stroke-dasharray="6 4" opacity="0.3"/>
+
+  <!-- Step 1: Content -->
+  <g filter="url(#shadow)">
+    <rect x="80" y="120" width="340" height="100" rx="16" fill="white" stroke="#e5e5e5" stroke-width="1"/>
+    <circle cx="100" cy="140" r="12" fill="url(#accent)"/>
+    <text x="100" y="144" text-anchor="middle" font-size="11" font-weight="700" fill="white">1</text>
+    <text x="120" y="144" font-size="14" font-weight="700" fill="#1d1d1f">What content?</text>
+    <rect x="96" y="160" width="130" height="28" rx="8" fill="#f0f7ff" stroke="#0071e3" stroke-width="1"/>
+    <text x="161" y="178" text-anchor="middle" font-size="11" font-weight="500" fill="#0071e3">Paste or describe it</text>
+    <rect x="234" y="160" width="100" height="28" rx="8" fill="#f5f5f7" stroke="#e5e5e5" stroke-width="1"/>
+    <text x="284" y="178" text-anchor="middle" font-size="11" font-weight="500" fill="#86868b">Read from file</text>
+    <rect x="96" y="194" width="118" height="28" rx="8" fill="#f5f5f7" stroke="#e5e5e5" stroke-width="1"/>
+    <text x="155" y="212" text-anchor="middle" font-size="11" font-weight="500" fill="#86868b">Generate from topic</text>
+  </g>
+
+  <!-- Step 2: Theme -->
+  <g filter="url(#shadow)">
+    <rect x="480" y="120" width="340" height="100" rx="16" fill="white" stroke="#e5e5e5" stroke-width="1"/>
+    <circle cx="500" cy="140" r="12" fill="url(#accent)"/>
+    <text x="500" y="144" text-anchor="middle" font-size="11" font-weight="700" fill="white">2</text>
+    <text x="520" y="144" font-size="14" font-weight="700" fill="#1d1d1f">Pick a theme</text>
+    <rect x="496" y="160" width="110" height="28" rx="8" fill="#f0f7ff" stroke="#0071e3" stroke-width="1"/>
+    <text x="551" y="178" text-anchor="middle" font-size="11" font-weight="500" fill="#0071e3">Dark Cinematic</text>
+    <rect x="614" y="160" width="90" height="28" rx="8" fill="#f5f5f7" stroke="#e5e5e5" stroke-width="1"/>
+    <text x="659" y="178" text-anchor="middle" font-size="11" font-weight="500" fill="#86868b">Light Minimal</text>
+    <rect x="712" y="160" width="92" height="28" rx="8" fill="#f5f5f7" stroke="#e5e5e5" stroke-width="1"/>
+    <text x="758" y="178" text-anchor="middle" font-size="11" font-weight="500" fill="#86868b">Warm Editorial</text>
+    <rect x="496" y="194" width="110" height="28" rx="8" fill="#f5f5f7" stroke="#e5e5e5" stroke-width="1"/>
+    <text x="551" y="212" text-anchor="middle" font-size="11" font-weight="500" fill="#86868b">Neon Cyberpunk</text>
+    <rect x="614" y="194" width="100" height="28" rx="8" fill="#f5f5f7" stroke="#e5e5e5" stroke-width="1"/>
+    <text x="664" y="212" text-anchor="middle" font-size="11" font-weight="500" fill="#86868b">Earth Organic</text>
+  </g>
+
+  <!-- Step 3: Customize -->
+  <g filter="url(#shadow)">
+    <rect x="80" y="250" width="340" height="100" rx="16" fill="white" stroke="#e5e5e5" stroke-width="1"/>
+    <circle cx="100" cy="270" r="12" fill="url(#accent)"/>
+    <text x="100" y="274" text-anchor="middle" font-size="11" font-weight="700" fill="white">3</text>
+    <text x="120" y="274" font-size="14" font-weight="700" fill="#1d1d1f">Customize design</text>
+    <rect x="96" y="290" width="100" height="28" rx="8" fill="#f0f7ff" stroke="#0071e3" stroke-width="1"/>
+    <text x="146" y="308" text-anchor="middle" font-size="11" font-weight="500" fill="#0071e3">Use defaults</text>
+    <rect x="204" y="290" width="120" height="28" rx="8" fill="#f5f5f7" stroke="#e5e5e5" stroke-width="1"/>
+    <text x="264" y="308" text-anchor="middle" font-size="11" font-weight="500" fill="#86868b">Custom accent color</text>
+    <rect x="96" y="324" width="96" height="28" rx="8" fill="#f5f5f7" stroke="#e5e5e5" stroke-width="1"/>
+    <text x="144" y="342" text-anchor="middle" font-size="11" font-weight="500" fill="#86868b">Custom fonts</text>
+    <rect x="200" y="324" width="80" height="28" rx="8" fill="#f5f5f7" stroke="#e5e5e5" stroke-width="1"/>
+    <text x="240" y="342" text-anchor="middle" font-size="11" font-weight="500" fill="#86868b">Multiple</text>
+  </g>
+
+  <!-- Step 4: Structure -->
+  <g filter="url(#shadow)">
+    <rect x="480" y="250" width="340" height="140" rx="16" fill="white" stroke="#e5e5e5" stroke-width="1"/>
+    <circle cx="500" cy="270" r="12" fill="url(#accent)"/>
+    <text x="500" y="274" text-anchor="middle" font-size="11" font-weight="700" fill="white">4</text>
+    <text x="520" y="274" font-size="14" font-weight="700" fill="#1d1d1f">Review slide structure</text>
+    <rect x="496" y="290" width="308" height="24" rx="6" fill="#f5f5f7"/>
+    <text x="506" y="306" font-size="11" font-weight="500" fill="#6e6e73">Slide 1: Hero — "Title" + tagline</text>
+    <rect x="496" y="318" width="308" height="24" rx="6" fill="#f5f5f7"/>
+    <text x="506" y="334" font-size="11" font-weight="500" fill="#6e6e73">Slide 2: Stats — key metrics</text>
+    <rect x="496" y="346" width="308" height="24" rx="6" fill="#f5f5f7"/>
+    <text x="506" y="362" font-size="11" font-weight="500" fill="#6e6e73">Slide 3: Feature Grid — capabilities</text>
+  </g>
+
+  <!-- Step 5: Output -->
+  <g filter="url(#shadow)">
+    <rect x="230" y="420" width="440" height="100" rx="16" fill="white" stroke="#e5e5e5" stroke-width="1"/>
+    <circle cx="250" cy="440" r="12" fill="url(#accent)"/>
+    <text x="250" y="444" text-anchor="middle" font-size="11" font-weight="700" fill="white">5</text>
+    <text x="270" y="444" font-size="14" font-weight="700" fill="#1d1d1f">Where to save?</text>
+    <rect x="246" y="460" width="120" height="28" rx="8" fill="#f0f7ff" stroke="#0071e3" stroke-width="1"/>
+    <text x="306" y="478" text-anchor="middle" font-size="11" font-weight="500" fill="#0071e3">Current directory</text>
+    <rect x="374" y="460" width="80" height="28" rx="8" fill="#f5f5f7" stroke="#e5e5e5" stroke-width="1"/>
+    <text x="414" y="478" text-anchor="middle" font-size="11" font-weight="500" fill="#86868b">Desktop</text>
+    <rect x="462" y="460" width="100" height="28" rx="8" fill="#f5f5f7" stroke="#e5e5e5" stroke-width="1"/>
+    <text x="512" y="478" text-anchor="middle" font-size="11" font-weight="500" fill="#86868b">Custom path</text>
+    <rect x="246" y="494" width="414" height="20" rx="4" fill="#f8faf8"/>
+    <text x="453" y="508" text-anchor="middle" font-size="10" fill="#30d158" font-weight="500">AI generates your complete .html presentation</text>
+  </g>
+
+  <!-- Result -->
+  <g filter="url(#shadow)">
+    <rect x="300" y="550" width="300" height="80" rx="16" fill="url(#accent)"/>
+    <text x="450" y="582" text-anchor="middle" font-size="16" font-weight="700" fill="white">presentation.html</text>
+    <text x="450" y="604" text-anchor="middle" font-size="12" fill="rgba(255,255,255,0.7)">Single file. Zero dependencies. Open anywhere.</text>
+  </g>
+
+  <!-- Arrows -->
+  <polygon points="446,540 450,550 454,540" fill="#6e3aff" opacity="0.6"/>
+
+  <!-- Theme previews shown as small color swatches in step 2 context -->
+  <text x="520" y="155" font-size="10" fill="#aeaeb2">AI recommends based on your content</text>
+</svg>

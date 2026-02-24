@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presentation Chef</title>
+  <style>
+    *, *::before, *::after {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #fafafa;
+      --text-primary: #1d1d1f;
+      --text-secondary: #86868b;
+      --text-muted: #aeaeb2;
+      --accent-1: #0071e3;
+      --accent-1-light: #2997ff;
+      --accent-2-start: #0071e3;
+      --accent-2-end: #6e3aff;
+      --accent-warm: #ff6723;
+      --accent-green: #30d158;
+      --gray-100: #f5f5f7;
+      --gray-200: #d2d2d7;
+      --gray-400: #86868b;
+      --gray-600: #6e6e73;
+      --gray-800: #1d1d1f;
+      --card-bg: rgba(0, 0, 0, 0.03);
+      --card-border: rgba(0, 0, 0, 0.08);
+      --card-blur: 40px;
+      --transition-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --transition-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      --transition-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+      --slide-duration: 600ms;
+      --reveal-stagger: 150ms;
+    }
+
+    html { scroll-behavior: auto; overflow: hidden; background: var(--bg-primary); }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Loading Screen */
+    .loading-screen {
+      position: fixed; inset: 0;
+      background: var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      transition: opacity 0.6s ease;
+    }
+    .loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .loading-spinner {
+      width: 32px; height: 32px;
+      border: 2px solid var(--card-border);
+      border-top-color: var(--accent-1);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Progress Bar */
+    .progress-bar {
+      position: fixed; top: 0; left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2-end));
+      z-index: 200;
+      transition: width 0.6s var(--transition-cinematic);
+      box-shadow: 0 0 8px rgba(0, 113, 227, 0.3);
+    }
+
+    /* Navigation Dots */
+    .nav-dots {
+      position: fixed;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 150;
+    }
+    .nav-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--gray-200);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      padding: 0;
+      position: relative;
+    }
+    .nav-dot:hover {
+      background: var(--accent-1);
+      transform: scale(1.3);
+    }
+    .nav-dot.active {
+      background: var(--accent-1);
+      transform: scale(1.4);
+      box-shadow: 0 0 8px rgba(0, 113, 227, 0.4);
+    }
+    .nav-dot::before {
+      content: attr(data-label);
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+    .nav-dot:hover::before { opacity: 1; }
+
+    /* Keyboard Hint */
+    .keyboard-hint {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+      z-index: 150;
+      transition: opacity 0.4s ease;
+    }
+    .keyboard-hint.hidden { opacity: 0; pointer-events: none; }
+    .key-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .key-icon.arrow-down {
+      animation: bounceArrow 2s ease-in-out infinite;
+    }
+    @keyframes bounceArrow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(3px); }
+    }
+
+    /* Slide Container */
+    .slide-container {
+      position: fixed; inset: 0;
+      width: 100vw; height: 100vh;
+      transition: transform 0.5s var(--transition-cinematic);
+    }
+
+    .slide {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.95) translateY(30px);
+      transition: opacity var(--slide-duration) var(--transition-cinematic),
+                  transform var(--slide-duration) var(--transition-cinematic),
+                  visibility 0s linear var(--slide-duration);
+      will-change: opacity, transform;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1) translateY(0);
+      transition: opacity var(--slide-duration) var(--transition-cinematic),
+                  transform var(--slide-duration) var(--transition-cinematic),
+                  visibility 0s linear 0s;
+    }
+
+    .slide.exiting-up {
+      opacity: 0; visibility: hidden;
+      transform: scale(1.05) translateY(-50px);
+    }
+
+    .slide.exiting-down {
+      opacity: 0; visibility: hidden;
+      transform: scale(0.9) translateY(50px);
+    }
+
+    /* Slide Backgrounds */
+    .slide--light { background: var(--bg-primary); }
+    .slide--gradient-soft { background: linear-gradient(145deg, #fff 0%, #f8f9fa 50%, #f0f0f5 100%); }
+    .slide--gradient-warm { background: linear-gradient(145deg, #fff 0%, #fdf8f5 50%, #f5f0eb 100%); }
+    .slide--gradient-cool { background: linear-gradient(145deg, #fff 0%, #f0f4ff 50%, #e8eeff 100%); }
+
+    /* Reveal Animations */
+    .reveal-element {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s var(--transition-cinematic),
+                  transform 0.8s var(--transition-cinematic);
+    }
+    .reveal-element.revealed {
+      opacity: 1; transform: translateY(0);
+    }
+    .reveal-element[data-delay="0"] { transition-delay: 0s; }
+    .reveal-element[data-delay="1"] { transition-delay: 0.15s; }
+    .reveal-element[data-delay="2"] { transition-delay: 0.3s; }
+    .reveal-element[data-delay="3"] { transition-delay: 0.45s; }
+    .reveal-element[data-delay="4"] { transition-delay: 0.6s; }
+    .reveal-element[data-delay="5"] { transition-delay: 0.75s; }
+    .reveal-element[data-delay="6"] { transition-delay: 0.9s; }
+    .reveal-element[data-delay="7"] { transition-delay: 1.05s; }
+    .reveal-element[data-delay="8"] { transition-delay: 1.2s; }
+    .reveal-element[data-delay="9"] { transition-delay: 1.35s; }
+    .reveal-element[data-delay="10"] { transition-delay: 1.5s; }
+    .reveal-element[data-delay="11"] { transition-delay: 1.65s; }
+    .reveal-element[data-delay="12"] { transition-delay: 1.8s; }
+
+    /* ===== TYPOGRAPHY ===== */
+    .hero-name {
+      font-size: clamp(48px, 10vw, 120px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      text-align: center;
+      color: var(--text-primary);
+    }
+    .hero-subtitle {
+      font-size: clamp(18px, 3vw, 32px);
+      font-weight: 400;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 24px;
+      letter-spacing: 0.02em;
+    }
+    .hero-subtitle .sep {
+      display: inline-block;
+      margin: 0 12px;
+      color: var(--gray-200);
+    }
+    .divider-line {
+      width: 60px;
+      height: 2px;
+      background: var(--accent-1);
+      margin: 32px auto;
+      border-radius: 1px;
+    }
+    .hero-tagline {
+      font-size: clamp(14px, 1.8vw, 18px);
+      color: var(--text-muted);
+      text-align: center;
+      max-width: 500px;
+    }
+    .section-label {
+      font-size: clamp(14px, 1.5vw, 18px);
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent-1);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: clamp(36px, 7vw, 72px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      text-align: center;
+      color: var(--text-primary);
+    }
+    .section-subtitle {
+      font-size: clamp(16px, 2.5vw, 24px);
+      font-weight: 400;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 16px;
+      max-width: 700px;
+    }
+
+    /* ===== STATS ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 48px 64px;
+      max-width: 900px;
+      width: 100%;
+      margin-top: 40px;
+    }
+    .stat-item { text-align: center; }
+    .stat-number {
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--accent-1);
+    }
+    .stat-number.accent-purple { color: #6e3aff; }
+    .stat-number.accent-green { color: var(--accent-green); }
+    .stat-number.accent-warm { color: var(--accent-warm); }
+    .stat-label {
+      font-size: clamp(14px, 1.8vw, 18px);
+      font-weight: 400;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
+
+    /* ===== FEATURE GRID ===== */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      max-width: 900px;
+      width: 100%;
+      margin-top: 40px;
+    }
+    .tech-chip {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px 16px;
+      text-align: center;
+      font-size: clamp(13px, 1.4vw, 15px);
+      font-weight: 500;
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .tech-chip:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      border-color: var(--accent-1);
+    }
+    .tech-chip .chip-icon {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .tech-category-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ===== COMPARISON ===== */
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 32px;
+      max-width: 1000px;
+      width: 100%;
+      margin-top: 40px;
+      align-items: start;
+    }
+    .comparison-col {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: clamp(24px, 4vw, 40px);
+      position: relative;
+      overflow: hidden;
+    }
+    .comparison-col::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 2px;
+      border-radius: 0 0 2px 2px;
+    }
+    .comparison-col.col-before::before {
+      background: linear-gradient(90deg, transparent, var(--text-muted), transparent);
+    }
+    .comparison-col.col-after::before {
+      background: linear-gradient(90deg, transparent, var(--accent-1), transparent);
+    }
+    .comparison-heading {
+      font-size: clamp(18px, 2.5vw, 24px);
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+    }
+    .comparison-heading.muted { color: var(--text-muted); }
+    .comparison-heading.accent { color: var(--accent-1); }
+    .comparison-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .comparison-list li {
+      font-size: clamp(14px, 1.6vw, 16px);
+      color: var(--text-secondary);
+      padding-left: 20px;
+      position: relative;
+      line-height: 1.5;
+    }
+    .comparison-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+    .col-before .comparison-list li::before {
+      background: var(--text-muted);
+    }
+    .col-after .comparison-list li::before {
+      background: var(--accent-1);
+    }
+    .comparison-divider {
+      width: 1px;
+      height: 100%;
+      min-height: 200px;
+      background: var(--card-border);
+      align-self: stretch;
+    }
+
+    /* ===== CTA ===== */
+    .available-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      border-radius: 100px;
+      background: rgba(48, 209, 88, 0.08);
+      border: 1px solid rgba(48, 209, 88, 0.2);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--accent-green);
+    }
+    .available-pulse {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(48, 209, 88, 0.4); }
+      50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(48, 209, 88, 0); }
+    }
+    .contact-links {
+      display: flex;
+      gap: 16px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .contact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      border-radius: 100px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    .contact-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      border-color: var(--accent-1);
+    }
+    .contact-link--primary {
+      background: var(--accent-1);
+      border-color: var(--accent-1);
+      color: #fff;
+    }
+    .contact-link--primary:hover {
+      background: var(--accent-1-light);
+      border-color: var(--accent-1-light);
+      box-shadow: 0 8px 30px rgba(0, 113, 227, 0.3);
+    }
+    .contact-link svg {
+      width: 18px; height: 18px;
+      fill: currentColor;
+    }
+
+    /* ===== SPEAKER NOTES ===== */
+    .speaker-notes {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: 340px;
+      background: rgba(250, 250, 250, 0.95);
+      backdrop-filter: blur(30px);
+      border-right: 1px solid var(--card-border);
+      z-index: 300;
+      transform: translateX(-100%);
+      transition: transform 0.4s var(--transition-cinematic);
+      overflow-y: auto;
+      padding: 0;
+    }
+    body.notes-open .speaker-notes { transform: translateX(0); }
+    body.notes-open .slide-container { transform: translateX(170px) scale(0.88); }
+    body.notes-open .progress-bar { left: 340px; }
+
+    .notes-header {
+      position: sticky;
+      top: 0;
+      padding: 24px;
+      background: rgba(250, 250, 250, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--card-border);
+      z-index: 1;
+    }
+    .notes-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .notes-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .notes-close {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      border: none;
+      background: var(--card-bg);
+      color: var(--text-secondary);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .notes-close:hover { background: var(--card-border); }
+    .notes-slide-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+    .notes-body { padding: 24px; }
+    .note-content { display: none; }
+    .note-content.active { display: block; }
+    .note-content p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    .note-content p strong {
+      color: var(--text-primary);
+    }
+    .note-tip {
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: rgba(0, 113, 227, 0.06);
+      border-left: 3px solid var(--accent-1);
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-top: 16px;
+    }
+
+    /* ===== CONTROLS BAR ===== */
+    .controls-bar {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      gap: 8px;
+      z-index: 250;
+    }
+    .control-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(10px);
+    }
+    .control-btn:hover {
+      background: rgba(0, 0, 0, 0.06);
+      color: var(--text-primary);
+    }
+    .control-btn svg { width: 14px; height: 14px; fill: currentColor; }
+    .key-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px; height: 20px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.05);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .slide { padding: 24px; }
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px;
+      }
+      .tech-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .comparison-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .comparison-divider {
+        width: 100%; height: 1px; min-height: 1px;
+      }
+      .nav-dots { display: none; }
+      .contact-links { flex-direction: column; align-items: center; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; gap: 24px; }
+      .keyboard-hint { display: none; }
+      .controls-bar { display: none; }
+      .tech-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (hover: none) {
+      .tech-chip:hover { transform: none; box-shadow: none; }
+      .contact-link:hover { transform: none; box-shadow: none; }
+    }
+
+    /* ===== PRINT / PDF ===== */
+    @media print {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      html, body { overflow: visible !important; height: auto !important; width: auto !important; }
+      .loading-screen, .progress-bar, .nav-dots,
+      .keyboard-hint, .controls-bar, .speaker-notes { display: none !important; }
+      .slide-container { position: static !important; transform: none !important; }
+      .slide {
+        position: relative !important;
+        opacity: 1 !important; visibility: visible !important; transform: none !important;
+        width: 100% !important; height: 100vh !important;
+        page-break-after: always; break-after: page;
+        page-break-inside: avoid; break-inside: avoid;
+        overflow: hidden !important;
+      }
+      .slide:last-child { page-break-after: auto; }
+      .reveal-element { opacity: 1 !important; transform: none !important; }
+      .data-bar-fill { width: var(--bar-width) !important; }
+    }
+    @page { size: landscape; margin: 0; }
+  </style>
+</head>
+<body>
+
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress-bar" id="progressBar" style="width: 20%;"></div>
+
+  <!-- Navigation Dots -->
+  <div class="nav-dots" id="navDots">
+    <button class="nav-dot active" data-slide="0" data-label="Intro" onclick="goToSlide(0)"></button>
+    <button class="nav-dot" data-slide="1" data-label="Numbers" onclick="goToSlide(1)"></button>
+    <button class="nav-dot" data-slide="2" data-label="Features" onclick="goToSlide(2)"></button>
+    <button class="nav-dot" data-slide="3" data-label="Comparison" onclick="goToSlide(3)"></button>
+    <button class="nav-dot" data-slide="4" data-label="Get Started" onclick="goToSlide(4)"></button>
+  </div>
+
+  <!-- Keyboard Hint -->
+  <div class="keyboard-hint" id="keyboardHint">
+    <span class="key-icon">&#8593;</span>
+    <span class="key-icon arrow-down">&#8595;</span>
+    <span>or</span>
+    <span class="key-icon">Space</span>
+  </div>
+
+  <!-- Speaker Notes Sidebar -->
+  <div class="speaker-notes" id="speakerNotes">
+    <div class="notes-header">
+      <div class="notes-header-top">
+        <span class="notes-title">Talking Points</span>
+        <button class="notes-close" onclick="toggleNotes()">&times;</button>
+      </div>
+      <div class="notes-slide-label" id="notesSlideLabel">Slide 1 of 5</div>
+    </div>
+    <div class="notes-body">
+      <div class="note-content active" data-note="0">
+        <p><strong>Open with confidence and let the name land.</strong> Presentation Chef is a tool that turns any content into polished, Apple Keynote-quality HTML presentations. Emphasize the simplicity: you describe what you want, pick a theme, and get a single .html file you can open anywhere.</p>
+        <p>Mention the inspiration from ChronicleHQ and how this takes that beautiful aesthetic and makes it free, open source, and available through any AI coding assistant.</p>
+        <div class="note-tip">Pause after the title animation completes. Let the audience read the tagline before speaking.</div>
+      </div>
+      <div class="note-content" data-note="1">
+        <p><strong>Let the numbers do the talking.</strong> Five distinct themes means there's a preset for every context, from boardroom presentations to hackathon pitches. Thirteen slide types cover everything from hero intros to stat blocks to timelines.</p>
+        <p>Zero dependencies is the headline here. No npm install, no build step, no framework. A single .html file that works on any device, any browser, right now. And it works with over ten AI coding assistants, so it meets developers wherever they already are.</p>
+        <div class="note-tip">Point to each number as the count-up animation finishes. Give each stat a beat before moving on.</div>
+      </div>
+      <div class="note-content" data-note="2">
+        <p><strong>Walk through the feature set.</strong> These are not just checkboxes. Speaker notes with a press of the T key give you a teleprompter-style sidebar. PDF export with a press of P snaps all animated values and prints cleanly. Every element animates in with staggered reveals.</p>
+        <p>Call out the responsive design. These presentations work on phones and tablets, not just projectors. Touch swipe navigation makes them feel native on mobile. And glassmorphism cards give the whole thing a premium feel without any design effort from the user.</p>
+        <div class="note-tip">This slide has a lot of chips. Don't read them all out loud. Pick three favorites and explain why they matter.</div>
+      </div>
+      <div class="note-content" data-note="3">
+        <p><strong>This is the contrast slide.</strong> The left column represents the pain everyone knows: context switching between tools, fighting with formatting, waiting for cloud renders, paying subscription fees. The right column is the pitch: you stay in your coding environment, you get instant output, and it costs nothing.</p>
+        <p>The key insight is that developers already have AI coding assistants. Presentation Chef just teaches those assistants a new skill. No new tool to learn, no new account to create.</p>
+        <div class="note-tip">Let the audience read both columns. Don't rush this one. The comparison sells itself.</div>
+      </div>
+      <div class="note-content" data-note="4">
+        <p><strong>Close with the call to action.</strong> This is MIT licensed and completely free. The GitHub link is the only thing you need. Mention that it takes about 30 seconds to install in Claude Code, and even less to copy the skill file into any other tool.</p>
+        <p>If the audience is technical, mention that the entire skill is a markdown file with a complete design system spec. If they are non-technical, focus on the output: stunning presentations from a single sentence.</p>
+        <div class="note-tip">End on the GitHub link. Let it sit on screen. If presenting live, this is where you take questions.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls Bar -->
+  <div class="controls-bar">
+    <button class="control-btn" id="btnNotes" onclick="toggleNotes()">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zM6 20V4h5v7h7v9H6z"/></svg>
+      Notes <span class="key-badge">T</span>
+    </button>
+    <button class="control-btn" id="btnPdf" onclick="exportPdf()">
+      <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      PDF <span class="key-badge">P</span>
+    </button>
+  </div>
+
+  <!-- Slide Container -->
+  <div class="slide-container" id="slideContainer">
+
+    <!-- Slide 0: Hero -->
+    <div class="slide slide--light active" data-slide="0">
+      <div class="reveal-element" data-delay="0">
+        <p class="section-label" style="margin-bottom: 24px;">Open Source AI Skill</p>
+      </div>
+      <div class="reveal-element" data-delay="1">
+        <h1 class="hero-name">Presentation<br>Chef</h1>
+      </div>
+      <div class="reveal-element" data-delay="3">
+        <div class="divider-line"></div>
+      </div>
+      <div class="reveal-element" data-delay="4">
+        <p class="hero-subtitle">Turn anything into stunning presentations</p>
+      </div>
+      <div class="reveal-element" data-delay="5">
+        <p class="hero-tagline">Apple Keynote-quality HTML presentations from a single prompt. One .html file. Zero dependencies. Open anywhere.</p>
+      </div>
+    </div>
+
+    <!-- Slide 1: Stats -->
+    <div class="slide slide--gradient-soft" data-slide="1">
+      <div class="reveal-element" data-delay="0">
+        <p class="section-label">By the Numbers</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-item reveal-element" data-delay="1">
+          <div class="stat-number"><span class="count-up" data-target="5">0</span></div>
+          <div class="stat-label">Theme presets</div>
+        </div>
+        <div class="stat-item reveal-element" data-delay="2">
+          <div class="stat-number accent-purple"><span class="count-up" data-target="13">0</span></div>
+          <div class="stat-label">Slide types</div>
+        </div>
+        <div class="stat-item reveal-element" data-delay="3">
+          <div class="stat-number accent-green"><span class="count-up" data-target="0">0</span></div>
+          <div class="stat-label">Dependencies</div>
+        </div>
+        <div class="stat-item reveal-element" data-delay="4">
+          <div class="stat-number accent-warm"><span class="count-up" data-target="10">0</span>+</div>
+          <div class="stat-label">AI tools supported</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 2: Feature Grid -->
+    <div class="slide slide--gradient-cool" data-slide="2">
+      <div class="reveal-element" data-delay="0">
+        <p class="section-label">What You Get</p>
+      </div>
+      <div class="reveal-element" data-delay="1">
+        <h2 class="section-title" style="font-size: clamp(28px, 5vw, 56px);">Everything built in</h2>
+      </div>
+      <div class="tech-grid">
+        <div class="tech-chip reveal-element" data-delay="2">
+          <span class="chip-icon">&#127916;</span>
+          Cinematic Transitions
+          <span class="tech-category-label">Animation</span>
+        </div>
+        <div class="tech-chip reveal-element" data-delay="3">
+          <span class="chip-icon">&#128444;</span>
+          Glassmorphism Cards
+          <span class="tech-category-label">Design</span>
+        </div>
+        <div class="tech-chip reveal-element" data-delay="4">
+          <span class="chip-icon">&#128172;</span>
+          Speaker Notes
+          <span class="tech-category-label">Presenting</span>
+        </div>
+        <div class="tech-chip reveal-element" data-delay="5">
+          <span class="chip-icon">&#128196;</span>
+          PDF Export
+          <span class="tech-category-label">Output</span>
+        </div>
+        <div class="tech-chip reveal-element" data-delay="6">
+          <span class="chip-icon">&#128241;</span>
+          Responsive
+          <span class="tech-category-label">Layout</span>
+        </div>
+        <div class="tech-chip reveal-element" data-delay="7">
+          <span class="chip-icon">&#9997;</span>
+          Touch Navigation
+          <span class="tech-category-label">Interaction</span>
+        </div>
+        <div class="tech-chip reveal-element" data-delay="8">
+          <span class="chip-icon">&#127912;</span>
+          5 Theme Presets
+          <span class="tech-category-label">Styling</span>
+        </div>
+        <div class="tech-chip reveal-element" data-delay="9">
+          <span class="chip-icon">&#128200;</span>
+          Animated Stats
+          <span class="tech-category-label">Data</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Comparison -->
+    <div class="slide slide--gradient-warm" data-slide="3">
+      <div class="reveal-element" data-delay="0">
+        <p class="section-label">Why Switch</p>
+      </div>
+      <div class="reveal-element" data-delay="1">
+        <h2 class="section-title" style="font-size: clamp(28px, 5vw, 48px);">A better way to build slides</h2>
+      </div>
+      <div class="comparison-grid">
+        <div class="comparison-col col-before reveal-element" data-delay="2">
+          <h3 class="comparison-heading muted">Traditional Tools</h3>
+          <ul class="comparison-list">
+            <li>Switch between apps to design</li>
+            <li>Drag, drop, align, repeat</li>
+            <li>Pay monthly for cloud tools</li>
+            <li>Generic templates, limited themes</li>
+            <li>Locked into a platform</li>
+            <li>Export issues across devices</li>
+          </ul>
+        </div>
+        <div class="comparison-divider reveal-element" data-delay="3"></div>
+        <div class="comparison-col col-after reveal-element" data-delay="4">
+          <h3 class="comparison-heading accent">Presentation Chef</h3>
+          <ul class="comparison-list">
+            <li>Stay in your coding assistant</li>
+            <li>Describe it, get a finished deck</li>
+            <li>Free and open source, forever</li>
+            <li>Cinematic design, fully customizable</li>
+            <li>Single .html file, no lock-in</li>
+            <li>Works in any browser, any device</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: CTA -->
+    <div class="slide slide--light" data-slide="4">
+      <div class="reveal-element" data-delay="0">
+        <div class="available-badge">
+          <span class="available-pulse"></span>
+          Open Source
+        </div>
+      </div>
+      <div class="reveal-element" data-delay="1">
+        <h2 class="section-title" style="font-size: clamp(32px, 6vw, 72px);">Try it now</h2>
+      </div>
+      <div class="reveal-element" data-delay="2">
+        <p class="section-subtitle">MIT licensed. Free forever. Install in 30 seconds.</p>
+      </div>
+      <div class="contact-links reveal-element" data-delay="3">
+        <a href="https://github.com/sacredvoid/presentation-chef" class="contact-link contact-link--primary" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>
+          Star on GitHub
+        </a>
+        <a href="https://github.com/sacredvoid/presentation-chef#installation" class="contact-link" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          Install Guide
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    (function() {
+      var TOTAL_SLIDES = 5;
+      var TRANSITION_DURATION = 600;
+      var DEBOUNCE_MS = 80;
+      var COUNT_DURATION = 1200;
+      var WHEEL_THRESHOLD = 50;
+
+      var currentSlide = 0;
+      var isTransitioning = false;
+      var notesOpen = false;
+      var wheelAccumulator = 0;
+      var wheelTimeout = null;
+      var hasInteracted = false;
+
+      var slides = document.querySelectorAll('.slide');
+      var dots = document.querySelectorAll('.nav-dot');
+      var progressBar = document.getElementById('progressBar');
+      var keyboardHint = document.getElementById('keyboardHint');
+      var notesSlideLabel = document.getElementById('notesSlideLabel');
+      var noteContents = document.querySelectorAll('.note-content');
+
+      function goToSlide(index, direction) {
+        if (isTransitioning || index === currentSlide || index < 0 || index >= TOTAL_SLIDES) return;
+        isTransitioning = true;
+
+        if (!hasInteracted) {
+          hasInteracted = true;
+          keyboardHint.classList.add('hidden');
+        }
+
+        var dir = direction || (index > currentSlide ? 'up' : 'down');
+        var prev = slides[currentSlide];
+        var next = slides[index];
+
+        prev.classList.remove('active');
+        prev.classList.add(dir === 'up' ? 'exiting-up' : 'exiting-down');
+
+        prev.querySelectorAll('.reveal-element').forEach(function(el) {
+          el.classList.remove('revealed');
+        });
+
+        next.classList.remove('exiting-up', 'exiting-down');
+        next.classList.add('active');
+
+        currentSlide = index;
+
+        updateDots();
+        updateProgress();
+        revealElements();
+        triggerCountUps();
+        if (notesOpen) updateNotes();
+
+        setTimeout(function() {
+          prev.classList.remove('exiting-up', 'exiting-down');
+          isTransitioning = false;
+        }, TRANSITION_DURATION);
+      }
+
+      function updateDots() {
+        dots.forEach(function(dot, i) {
+          dot.classList.toggle('active', i === currentSlide);
+        });
+      }
+
+      function updateProgress() {
+        var pct = ((currentSlide + 1) / TOTAL_SLIDES) * 100;
+        progressBar.style.width = pct + '%';
+      }
+
+      function revealElements() {
+        var active = slides[currentSlide];
+        var els = active.querySelectorAll('.reveal-element');
+        els.forEach(function(el) {
+          el.classList.add('revealed');
+        });
+      }
+
+      function triggerCountUps() {
+        var active = slides[currentSlide];
+        var countUps = active.querySelectorAll('.count-up');
+        countUps.forEach(function(el) {
+          var target = parseInt(el.getAttribute('data-target'), 10);
+          animateCount(el, 0, target, COUNT_DURATION);
+        });
+      }
+
+      function animateCount(el, start, end, duration) {
+        var startTime = null;
+        function step(timestamp) {
+          if (!startTime) startTime = timestamp;
+          var progress = Math.min((timestamp - startTime) / duration, 1);
+          var eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.round(start + (end - start) * eased);
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
+      function toggleNotes() {
+        notesOpen = !notesOpen;
+        document.body.classList.toggle('notes-open', notesOpen);
+        if (notesOpen) updateNotes();
+      }
+
+      function updateNotes() {
+        notesSlideLabel.textContent = 'Slide ' + (currentSlide + 1) + ' of ' + TOTAL_SLIDES;
+        noteContents.forEach(function(n, i) {
+          n.classList.toggle('active', i === currentSlide);
+        });
+      }
+
+      function exportPdf() {
+        document.querySelectorAll('.count-up').forEach(function(el) {
+          el.textContent = el.getAttribute('data-target');
+        });
+        document.querySelectorAll('.data-bar-fill').forEach(function(el) {
+          el.classList.add('revealed');
+        });
+        var wasNotesOpen = notesOpen;
+        if (notesOpen) toggleNotes();
+        setTimeout(function() {
+          window.print();
+          if (wasNotesOpen) setTimeout(toggleNotes, 300);
+        }, 100);
+      }
+
+      // Keyboard navigation
+      document.addEventListener('keydown', function(e) {
+        switch (e.key) {
+          case 'ArrowDown':
+          case 'ArrowRight':
+          case ' ':
+          case 'PageDown':
+            e.preventDefault();
+            goToSlide(currentSlide + 1, 'up');
+            break;
+          case 'ArrowUp':
+          case 'ArrowLeft':
+          case 'PageUp':
+            e.preventDefault();
+            goToSlide(currentSlide - 1, 'down');
+            break;
+          case 'Home':
+            e.preventDefault();
+            goToSlide(0, 'down');
+            break;
+          case 'End':
+            e.preventDefault();
+            goToSlide(TOTAL_SLIDES - 1, 'up');
+            break;
+          case 't':
+          case 'T':
+            toggleNotes();
+            break;
+          case 'p':
+          case 'P':
+            exportPdf();
+            break;
+          case 'Escape':
+            if (notesOpen) toggleNotes();
+            break;
+        }
+      });
+
+      // Mouse wheel
+      document.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        wheelAccumulator += e.deltaY;
+        clearTimeout(wheelTimeout);
+        wheelTimeout = setTimeout(function() { wheelAccumulator = 0; }, DEBOUNCE_MS);
+        if (Math.abs(wheelAccumulator) >= WHEEL_THRESHOLD) {
+          if (wheelAccumulator > 0) {
+            goToSlide(currentSlide + 1, 'up');
+          } else {
+            goToSlide(currentSlide - 1, 'down');
+          }
+          wheelAccumulator = 0;
+        }
+      }, { passive: false });
+
+      // Touch swipe
+      var touchStartY = 0;
+      document.addEventListener('touchstart', function(e) {
+        touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+      document.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+      }, { passive: false });
+      document.addEventListener('touchend', function(e) {
+        var diff = touchStartY - e.changedTouches[0].clientY;
+        if (Math.abs(diff) > 50) {
+          if (diff > 0) goToSlide(currentSlide + 1, 'up');
+          else goToSlide(currentSlide - 1, 'down');
+        }
+      }, { passive: true });
+
+      // Loading screen
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          document.getElementById('loadingScreen').classList.add('hidden');
+          revealElements();
+          triggerCountUps();
+        }, 600);
+      });
+    })();
+  </script>
+</body>
+</html>

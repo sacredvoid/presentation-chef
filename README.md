@@ -2,10 +2,38 @@
 
 [![MIT License](https://img.shields.io/github/license/sacredvoid/presentation-chef)](LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/sacredvoid/presentation-chef)](https://github.com/sacredvoid/presentation-chef/releases)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-blue?logo=github)](https://sacredvoid.github.io/presentation-chef)
 
 Convert any content into Apple Keynote-style HTML presentations — from any AI coding tool.
 
 Cinematic animations, glassmorphism, ambient effects, speaker notes, PDF export — all in a **single self-contained `.html` file** with zero dependencies. Inspired by [ChronicleHQ](https://chroniclehq.com).
+
+**[View Live Demo](https://sacredvoid.github.io/presentation-chef)**
+
+## Sample Output
+
+<p align="center">
+  <img src="assets/screenshots/slide-1-hero.png" width="48%" alt="Hero slide" />
+  <img src="assets/screenshots/slide-2-stats.png" width="48%" alt="Stats slide" />
+</p>
+<p align="center">
+  <img src="assets/screenshots/slide-3-features.png" width="48%" alt="Feature grid slide" />
+  <img src="assets/screenshots/slide-4-comparison.png" width="48%" alt="Comparison slide" />
+</p>
+<p align="center">
+  <img src="assets/screenshots/slide-5-cta.png" width="48%" alt="CTA slide" />
+  <img src="assets/screenshots/speaker-notes.png" width="48%" alt="Speaker notes sidebar" />
+</p>
+
+## Interactive Workflow
+
+Presentation Chef doesn't just dump slides on you. It walks you through an interactive flow, asking questions at each step so you stay in control of the output.
+
+<p align="center">
+  <img src="assets/screenshots/workflow.svg" width="100%" alt="Interactive workflow showing the 5-step guided process" />
+</p>
+
+You choose the content source, pick a theme (with AI-powered recommendations based on your content), customize colors and fonts, review the proposed slide structure, and pick where to save. Only then does it generate.
 
 ## Installation
 
@@ -178,16 +206,6 @@ Amazon Q will automatically load it as context for chat interactions.
 The skill file at `skills/presentation-chef/SKILL.md` is plain markdown with a complete design system specification. You can use it with any AI assistant that accepts custom instructions or system prompts — just paste or reference the file contents.
 
 </details>
-
-## Usage
-
-Once installed, ask your AI assistant to create a presentation. The skill interactively guides you through:
-
-1. **Content input** — Paste text, point to a file, or describe a topic
-2. **Theme selection** — 5 built-in presets, recommended based on your content
-3. **Design customization** — Override colors, fonts, and effects
-4. **Slide structure** — Review and approve the proposed layout
-5. **Output** — Single `.html` file, open in any browser
 
 ## Themes
 
