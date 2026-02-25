@@ -15,7 +15,41 @@ You MUST gather all inputs interactively using AskUserQuestion before generating
 
 Follow these steps exactly:
 
+### Pre-Step: Initialize Task Pipeline
+
+Before starting Step 1, create tasks to give the user visibility into the full workflow:
+
+```
+TaskCreate:
+  subject: "Gather content source"
+  description: "Ask the user for their presentation content — paste, file, or topic"
+  activeForm: "Gathering content source"
+
+TaskCreate:
+  subject: "Select theme & customize design"
+  description: "Analyze content, recommend a theme, and gather design customization preferences"
+  activeForm: "Selecting theme and design preferences"
+
+TaskCreate:
+  subject: "Plan slide structure"
+  description: "Map content to slide types and confirm the structure with user"
+  activeForm: "Planning slide structure"
+
+TaskCreate:
+  subject: "Build presentation"
+  description: "Generate the complete HTML presentation with slides, navigation, and effects"
+  activeForm: "Building presentation"
+```
+
+Update each task to `in_progress` when starting that phase, and `completed` when done:
+- **"Gather content source"** → covers Step 1
+- **"Select theme & customize design"** → covers Steps 2-3
+- **"Plan slide structure"** → covers Step 4
+- **"Build presentation"** → covers Steps 5-6
+
 ### Step 1: Gather Content
+
+**TaskUpdate:** Mark "Gather content source" → `in_progress`
 
 Ask the user for their content source using AskUserQuestion:
 
@@ -37,7 +71,11 @@ If the user selects "Read from a file", ask for the file path and use the Read t
 If the user selects "Generate from topic", ask what the topic is and what audience/purpose it serves.
 If the user pastes content, analyze it to understand its structure.
 
+**TaskUpdate:** Mark "Gather content source" → `completed`
+
 ### Step 2: Analyze Content & Suggest Theme
+
+**TaskUpdate:** Mark "Select theme & customize design" → `in_progress`
 
 After receiving content, analyze it to determine:
 - **Content type**: pitch deck, portfolio, product launch, educational, report, personal story, etc.
@@ -145,7 +183,11 @@ AskUserQuestion:
 
 If the user wants customizations, ask follow-up questions one at a time about each customization.
 
+**TaskUpdate:** Mark "Select theme & customize design" → `completed`
+
 ### Step 4: Map Content to Slides
+
+**TaskUpdate:** Mark "Plan slide structure" → `in_progress`
 
 Analyze the content and map it to the appropriate slide types. Present the slide plan:
 
@@ -174,6 +216,8 @@ Slide 4: Content Card — Problem description
 ...
 ```
 
+**TaskUpdate:** Mark "Plan slide structure" → `completed`
+
 ### Step 5: Ask Output Location
 
 ```
@@ -190,11 +234,82 @@ AskUserQuestion:
   multiSelect: false
 ```
 
-### Step 6: Generate the Presentation
+### Step 6: Generate the Presentation (Batched with Progress Tracking)
 
-Generate a single self-contained .html file following the design system below. Use the Write tool to save it.
+When entering this step, mark the "Build presentation" high-level task as `in_progress`.
 
-After saving, tell the user the file path and suggest opening it in a browser.
+#### 6a: Create Build Sub-Tasks
+
+Based on the confirmed slide plan, create granular build tasks. Group slides into batches of 3-4:
+
+```
+TaskCreate:
+  subject: "Set up HTML structure & CSS theme"
+  description: "Create HTML skeleton, CSS reset, theme variables, effects (grain/orbs), slide system, reveal animations, typography, responsive breakpoints, print styles"
+  activeForm: "Setting up document structure and CSS"
+
+# For each batch of 3-4 slides, create a task:
+TaskCreate:
+  subject: "Build slides [X]-[Y]: [slide types]"
+  description: "Generate HTML for: Slide X ([type] — [title]), Slide X+1 ([type] — [title]), ..."
+  activeForm: "Building slides [X] through [Y]"
+
+# Example for a 12-slide presentation:
+# "Build slides 1-4: Hero, Stats, Chapter, Content Card"
+# "Build slides 5-8: Feature Grid, Timeline, Comparison, Quote"
+# "Build slides 9-12: Data, Split Screen, List, CTA"
+
+TaskCreate:
+  subject: "Add navigation, controls & speaker notes"
+  description: "Progress bar, nav dots, keyboard hints, speaker notes sidebar with talking points for every slide, controls bar"
+  activeForm: "Adding navigation and speaker notes"
+
+TaskCreate:
+  subject: "Wire up JavaScript engine"
+  description: "Slide navigation, reveal animations, count-up, data bars, keyboard/mouse/touch handlers, parallax, loading screen, notes toggle, PDF export"
+  activeForm: "Wiring up JavaScript engine"
+
+TaskCreate:
+  subject: "Run quality checklist & save file"
+  description: "Verify all 23 quality checks pass, then write the final .html file"
+  activeForm: "Running quality checklist and saving"
+```
+
+#### 6b: Execute Build Pipeline
+
+Work through each task sequentially. For **every** task:
+
+1. `TaskUpdate` → `in_progress` before you start working on it
+2. Generate that section of the presentation
+3. `TaskUpdate` → `completed` when done
+4. Move to the next task
+
+**Slide batch details:** When building a slide batch, generate the HTML for all slides in that batch. Each slide must include:
+- The slide container `<div>` with correct `data-slide` index
+- Background variant class
+- Ambient orbs (if dark theme)
+- All content elements wrapped in `reveal-element` with sequential delays
+- Proper slide type pattern from the Design System Reference below
+
+#### 6c: Assemble & Write
+
+After all build tasks are complete, assemble the full HTML document in this order:
+
+1. Document structure (head, meta, `<style>` open)
+2. All CSS (reset, theme, effects, slides, typography, responsive, print)
+3. `<body>` open, loading screen, grain overlay (if dark theme)
+4. Progress bar, nav dots, keyboard hint
+5. Speaker notes sidebar (all slides)
+6. Controls bar
+7. `<div class="slide-container">` with **all slide batches** in order
+8. `<script>` with full JS engine
+9. Close body/html
+
+Use the **Write** tool to save the assembled HTML to the confirmed output path.
+
+Mark the "Build presentation" high-level task as `completed`, then mark "Run quality checklist & save file" as `completed`.
+
+Tell the user the file path and suggest opening it in a browser.
 
 ---
 
